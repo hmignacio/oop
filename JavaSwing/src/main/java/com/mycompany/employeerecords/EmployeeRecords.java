@@ -4,45 +4,37 @@
 
 package com.mycompany.employeerecords;
 
-import org.apache.poi.ss.usermodel.*;
-import org.apache.poi.xssf.usermodel.XSSFWorkbook;
-import org.apache.commons.csv.CSVParser;
-import org.apache.commons.csv.CSVFormat;
-import org.apache.commons.csv.CSVRecord;
 
+import com.mycompany.employeerecords.model.Employee;
+import com.mycompany.employeerecords.service.AccessControl;
 import javax.swing.*;
 import javax.swing.table.DefaultTableModel;
 import java.awt.*;
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.IOException;
-import java.util.Vector;
-import javax.swing.table.DefaultTableCellRenderer;
 import java.awt.Color;
 import java.awt.Font;
-import java.io.BufferedReader;
-import java.io.FileReader;
-import java.io.InputStreamReader;
-import java.io.Reader;
-import java.net.URL;
-import java.util.HashMap;
-import java.util.Map;
-import javax.swing.table.TableCellRenderer;
+import java.util.Vector;
+
 
 public class EmployeeRecords extends JFrame {
     
    
     // Create and configure JTable
     private static final EmployeeRecordParser employeeData = new EmployeeRecordParser();
+    private static final AccessControl service = new AccessControl();
     private JTable employeeTable;
     private JPanel mainPanel;
-    private JButton btnView, btnAdd;
+    private JButton btnView, btnAdd, btnUsers, btnSalary;
+    private Employee loggedInEmployee;
     
     
 
     public EmployeeRecords(String employeeNumber) {
         employeeData.loadMapOnly();
-        Employee emp = EmployeeRecordParser.employeeMap.get(employeeNumber.trim());
+        
+        if (employeeNumber != null && !employeeNumber.isBlank()) {
+            loggedInEmployee = EmployeeRecordParser.employeeMap.get(employeeNumber.trim());
+        }
+        
         setTitle("Motor PH Employee Records");
         setSize(1000, 700);
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
@@ -77,8 +69,8 @@ public class EmployeeRecords extends JFrame {
         
         // Welcome label
         String welcomeText = "Welcome!";
-        if (emp != null) {
-            welcomeText = "Welcome, " + emp.getFirstName() + "!";
+        if (loggedInEmployee != null) {
+            welcomeText = "Welcome, " + loggedInEmployee.getFirstName() + "!";
         }
         JLabel welcomeLabel = new JLabel(welcomeText);
         welcomeLabel.setFont(new Font("SansSerif", Font.PLAIN, 16));
@@ -87,9 +79,10 @@ public class EmployeeRecords extends JFrame {
         welcomeLabel.setAlignmentX(Component.LEFT_ALIGNMENT);
 
         // Create buttons
-        JButton btnView = new JButton("Display Employee");
-        JButton btnAdd = new JButton("New Employee");
-        JButton btnSalary = new JButton("View Salary");
+        btnView = new JButton("Display Employee");
+        btnAdd = new JButton("New Employee");
+        btnSalary = new JButton("View Salary");
+        btnUsers = new JButton("Manage Users");
         
 
         JPanel buttonPanel = new JPanel(new FlowLayout(FlowLayout.LEFT, 15, 10));
@@ -97,6 +90,7 @@ public class EmployeeRecords extends JFrame {
         buttonPanel.add(btnView);
         buttonPanel.add(btnAdd);
         buttonPanel.add(btnSalary);
+        buttonPanel.add(btnUsers);
         
         // Separator line
         JSeparator separator = new JSeparator();
@@ -131,6 +125,9 @@ public class EmployeeRecords extends JFrame {
         add(mainPanel);
         
         
+        applyAccessControl(loggedInEmployee);
+        
+        
         // View button action
             btnView.addActionListener(e -> {
                 int selectedRow = employeeTable.getSelectedRow();
@@ -144,7 +141,7 @@ public class EmployeeRecords extends JFrame {
 
                 Employee employee = EmployeeRecordParser.employeeMap.get(empId);
                 if (employee != null) {
-                    new ViewEmployee(EmployeeRecords.this, employee).setVisible(true);
+                    new ViewEmployee(EmployeeRecords.this, loggedInEmployee, employee).setVisible(true);
                 } else {
                     JOptionPane.showMessageDialog(this, "Employee data not found for ID: " + empId, "Error", JOptionPane.ERROR_MESSAGE);
                 }
@@ -172,6 +169,10 @@ public class EmployeeRecords extends JFrame {
                     JOptionPane.showMessageDialog(this, "Employee data not found for ID: " + empId, "Error", JOptionPane.ERROR_MESSAGE);
                 }
             });
+            
+            btnUsers.addActionListener(e -> {
+                new UserManagement().setVisible(true);
+            });
     }
 
 
@@ -189,6 +190,13 @@ public class EmployeeRecords extends JFrame {
         employeeTable.setModel(model);
         employeeData.styleEmployeeTable(employeeTable);  // re-style
     }
+        
+        private void applyAccessControl(Employee emp) {
+            btnAdd.setVisible(AccessControl.canAddEmployee(emp));
+            btnView.setVisible(AccessControl.canViewEmployees(emp));
+            btnSalary.setVisible(AccessControl.canAccessSalary(emp));
+            btnUsers.setVisible(AccessControl.canManageUsers(emp));
+        }
 }
 
 

@@ -1,23 +1,17 @@
 package com.mycompany.employeerecords;
 
-import com.opencsv.CSVReader;
-import com.opencsv.exceptions.CsvException;
+
+
+import com.itextpdf.text.Font;
+import com.itextpdf.text.Font.FontFamily;
+
+
 import javax.swing.*;
 import java.awt.*;
-import java.awt.event.ActionEvent;
-import java.io.BufferedReader;
-import java.io.ByteArrayOutputStream;
-import java.io.IOException;
-import java.io.InputStreamReader;
-import java.io.PrintStream;
-import static java.lang.Float.parseFloat;
-import static java.lang.Integer.parseInt;
-import java.net.URL;
-import java.text.NumberFormat;
 import java.time.Month;
-import java.time.Year;
 import java.util.ArrayList;
-import java.util.Scanner;
+import com.mycompany.employeerecords.model.Employee;
+import java.io.FileOutputStream;
 
 public class Salary extends JFrame {
     private Employee employee;
@@ -39,7 +33,7 @@ public class Salary extends JFrame {
         JPanel headerPanel = new JPanel();
         headerPanel.setLayout(new BorderLayout());
         JLabel headerLabel = new JLabel(employee.getFirstName() + " " + employee.getLastName() + " Salary Information");
-        headerLabel.setFont(new Font("SansSerif", Font.BOLD, 18));
+        headerLabel.setFont(new java.awt.Font("SansSerif", Font.BOLD, 18));
         headerLabel.setBorder(BorderFactory.createEmptyBorder(10, 10, 5, 10));
         headerPanel.add(headerLabel, BorderLayout.NORTH);
 
@@ -136,8 +130,10 @@ public class Salary extends JFrame {
         // Footer buttons
         JPanel buttonPanel = new JPanel(new FlowLayout(FlowLayout.RIGHT));
         JButton computeButton = new JButton("Compute");
+        JButton printButton = new JButton("Print Payslip");
         JButton closeButton = new JButton("Close");
         buttonPanel.add(computeButton);
+        buttonPanel.add(printButton);
         buttonPanel.add(closeButton);
         add(buttonPanel, BorderLayout.SOUTH);
 
@@ -202,9 +198,10 @@ public class Salary extends JFrame {
             benefitsArea.setText(benefitsText.toString());
             deductionsArea.setText(deductionsText.toString());
         });
-
-
+        
+        
         closeButton.addActionListener(e -> dispose());
+        printButton.addActionListener(e -> generatePayslipPDF());
     }
 
     
@@ -214,6 +211,102 @@ public class Salary extends JFrame {
             return month.getValue(); // 1 to 12
         } catch (IllegalArgumentException e) {
             return -1; // invalid month
+        }
+    }
+    
+    private void generatePayslipPDF() {
+
+        try {
+
+            String fileName = "Payslip_" + employee.getEmployeeId() + ".pdf";
+
+            com.itextpdf.text.Document document = new com.itextpdf.text.Document();
+            com.itextpdf.text.pdf.PdfWriter.getInstance(
+                    document, new FileOutputStream(fileName));
+
+            document.open();
+
+            // Fonts
+            Font titleFont = new Font(FontFamily.HELVETICA, 18, Font.BOLD);
+            Font normalFont = new Font(FontFamily.HELVETICA, 12, Font.NORMAL);
+            Font headerFont = new Font(FontFamily.HELVETICA, 12, Font.BOLD);
+
+            // Title
+            com.itextpdf.text.Paragraph title =
+                    new com.itextpdf.text.Paragraph("MotorPH Payroll System\nEmployee Payslip\n\n", titleFont);
+
+            title.setAlignment(com.itextpdf.text.Element.ALIGN_CENTER);
+            document.add(title);
+
+            // Employee Info Table
+            com.itextpdf.text.pdf.PdfPTable infoTable = new com.itextpdf.text.pdf.PdfPTable(2);
+            infoTable.setWidthPercentage(100);
+
+            infoTable.addCell(new com.itextpdf.text.Phrase("Employee Name", headerFont));
+            infoTable.addCell(new com.itextpdf.text.Phrase(employee.getFirstName() + " " + employee.getLastName(), normalFont));
+
+            infoTable.addCell(new com.itextpdf.text.Phrase("Employee ID", headerFont));
+            infoTable.addCell(new com.itextpdf.text.Phrase(employee.getEmployeeId(), normalFont));
+
+            infoTable.addCell(new com.itextpdf.text.Phrase("Month", headerFont));
+            infoTable.addCell(new com.itextpdf.text.Phrase(monthComboBox.getSelectedItem().toString(), normalFont));
+
+            infoTable.addCell(new com.itextpdf.text.Phrase("Year", headerFont));
+            infoTable.addCell(new com.itextpdf.text.Phrase(yearComboBox.getSelectedItem().toString(), normalFont));
+
+            document.add(infoTable);
+            document.add(new com.itextpdf.text.Paragraph("\n"));
+
+            // Work Summary Table
+            com.itextpdf.text.pdf.PdfPTable workTable = new com.itextpdf.text.pdf.PdfPTable(2);
+            workTable.setWidthPercentage(100);
+
+            workTable.addCell(new com.itextpdf.text.Phrase("Total Hours Worked", headerFont));
+            workTable.addCell(new com.itextpdf.text.Phrase(totalHoursLabel.getText(), normalFont));
+
+            workTable.addCell(new com.itextpdf.text.Phrase("Minutes Worked", headerFont));
+            workTable.addCell(new com.itextpdf.text.Phrase(minutesWorkedLabel.getText(), normalFont));
+
+            workTable.addCell(new com.itextpdf.text.Phrase("OT Minutes", headerFont));
+            workTable.addCell(new com.itextpdf.text.Phrase(otMinutesLabel.getText(), normalFont));
+
+            document.add(workTable);
+            document.add(new com.itextpdf.text.Paragraph("\n"));
+
+            // Salary Table
+            com.itextpdf.text.pdf.PdfPTable salaryTable = new com.itextpdf.text.pdf.PdfPTable(2);
+            salaryTable.setWidthPercentage(100);
+
+            salaryTable.addCell(new com.itextpdf.text.Phrase("Gross Pay", headerFont));
+            salaryTable.addCell(new com.itextpdf.text.Phrase(grossPayLabel.getText(), normalFont));
+
+            salaryTable.addCell(new com.itextpdf.text.Phrase("Net Pay", headerFont));
+            salaryTable.addCell(new com.itextpdf.text.Phrase(netPayLabel.getText(), normalFont));
+
+            document.add(salaryTable);
+            document.add(new com.itextpdf.text.Paragraph("\n"));
+
+            // Benefits & Deductions Table
+            com.itextpdf.text.pdf.PdfPTable bdTable = new com.itextpdf.text.pdf.PdfPTable(2);
+            bdTable.setWidthPercentage(100);
+
+            bdTable.addCell(new com.itextpdf.text.Phrase("Benefits", headerFont));
+            bdTable.addCell(new com.itextpdf.text.Phrase("Deductions", headerFont));
+
+            bdTable.addCell(new com.itextpdf.text.Phrase(benefitsArea.getText(), normalFont));
+            bdTable.addCell(new com.itextpdf.text.Phrase(deductionsArea.getText(), normalFont));
+
+            document.add(bdTable);
+
+            document.close();
+
+            JOptionPane.showMessageDialog(this,
+                    "Payslip saved as " + fileName);
+
+        } catch (Exception ex) {
+
+            JOptionPane.showMessageDialog(this,
+                    "Error generating PDF: " + ex.getMessage());
         }
     }
 

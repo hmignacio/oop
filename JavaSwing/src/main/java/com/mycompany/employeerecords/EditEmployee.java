@@ -4,6 +4,7 @@ import javax.swing.*;
 import java.awt.*;
 import java.io.*;
 import java.util.*;
+import com.mycompany.employeerecords.model.Employee;
 
 public class EditEmployee extends JFrame {
 
@@ -89,21 +90,24 @@ public class EditEmployee extends JFrame {
         txtLastName.setText(employee.getLastName());
         txtFirstName.setText(employee.getFirstName());
         txtBirthDate.setText(employee.getBirthDate());
-        txtAddress.setText(employee.getAddress());
-        txtPhone.setText(employee.getPhone());
-        txtSSS.setText(employee.getSss());
-        txtPhilhealth.setText(employee.getPhilhealth());
-        txtTIN.setText(employee.getTin());
-        txtPagIbig.setText(employee.getPagIbig());
-        txtStatus.setText(employee.getStatus());
-        txtPosition.setText(employee.getPosition());
-        txtSupervisor.setText(employee.getSupervisor());
-        txtSalary.setText(employee.getSalary());
-        txtRiceSubsidy.setText(employee.getRiceSubsidy());
-        txtPhoneAllowance.setText(employee.getPhoneAllowance());
-        txtClothingAllowance.setText(employee.getClothingAllowance());
-        txtGrossRate.setText(employee.getGrossRate());
-        txtHourlyRate.setText(employee.getHourlyRate());
+        txtAddress.setText(employee.getPersonalInfo().getAddress());
+        txtPhone.setText(employee.getPersonalInfo().getPhone());
+
+        txtSSS.setText(employee.getBenefits().getSss());
+        txtPhilhealth.setText(employee.getBenefits().getPhilhealth());
+        txtTIN.setText(employee.getBenefits().getTin());
+        txtPagIbig.setText(employee.getBenefits().getPagIbig());
+
+        txtStatus.setText(employee.getEmployment().getStatus());
+        txtPosition.setText(employee.getEmployment().getPosition());
+        txtSupervisor.setText(employee.getEmployment().getSupervisor());
+
+        txtSalary.setText(String.valueOf(employee.getSalary().getSalary()));
+        txtRiceSubsidy.setText(String.valueOf(employee.getSalary().getRiceSubsidy()));
+        txtPhoneAllowance.setText(String.valueOf(employee.getSalary().getPhoneAllowance()));
+        txtClothingAllowance.setText(String.valueOf(employee.getSalary().getClothingAllowance()));
+        txtGrossRate.setText(String.valueOf(employee.getSalary().getGrossRate()));
+        txtHourlyRate.setText(String.valueOf(employee.getSalary().getHourlyRate()));
 
         // --- Save / Cancel Buttons ---
         JPanel buttonsPanel = new JPanel(new FlowLayout(FlowLayout.RIGHT));

@@ -4,9 +4,13 @@
  */
 package com.mycompany.employeerecords;
 
+import com.mycompany.employeerecords.model.EmploymentDetails;
+import com.mycompany.employeerecords.model.GovernmentBenefits;
+import com.mycompany.employeerecords.model.PersonalInfo;
+import com.mycompany.employeerecords.model.SalaryDetails;
+import com.mycompany.employeerecords.model.Employee;
 import java.awt.Component;
 import java.io.BufferedReader;
-import java.io.File;
 import java.io.FileReader;
 import java.io.IOException;
 import java.util.HashMap;
@@ -34,17 +38,14 @@ public class EmployeeRecordParser extends JFrame{
     private JTable employeeTable = new JTable();
     Path csvPath = Paths.get("src/docs/MotorPH-Employee-Data.csv");
     
+    public void loadEmployeeData(Vector<String> columnNames, Vector<Vector<String>> data) {
 
-    /*
-    * Loads employee data from an external CSV source.
-    * Parser and Default Builder from Apache Commons CSV API
-    */
-        public void loadEmployeeData(Vector<String> columnNames, Vector<Vector<String>> data) {
         try (BufferedReader br = new BufferedReader(new FileReader(csvPath.toFile()))) {
+
             CSVFormat format = CSVFormat.DEFAULT.builder()
-                .setHeader()
-                .setSkipHeaderRecord(true)
-                .build();
+                    .setHeader()
+                    .setSkipHeaderRecord(true)
+                    .build();
 
             CSVParser csvParser = new CSVParser(br, format);
 
@@ -58,26 +59,43 @@ public class EmployeeRecordParser extends JFrame{
             }
 
             for (CSVRecord record : csvParser) {
+
+                PersonalInfo personal = new PersonalInfo(
+                        record.get("Address"),
+                        record.get("Phone Number")
+                );
+
+                GovernmentBenefits benefits = new GovernmentBenefits(
+                        record.get("SSS #"),
+                        record.get("Philhealth #"),
+                        record.get("TIN #"),
+                        record.get("Pag-ibig #")
+                );
+
+                EmploymentDetails employment = new EmploymentDetails(
+                        record.get("Status"),
+                        record.get("Position"),
+                        record.get("Immediate Supervisor")
+                );
+
+                SalaryDetails salary = new SalaryDetails(
+                    Double.parseDouble(record.get("Basic Salary").replace(",", "").trim()),
+                    Double.parseDouble(record.get("Rice Subsidy").replace(",", "").trim()),
+                    Double.parseDouble(record.get("Phone Allowance").replace(",", "").trim()),
+                    Double.parseDouble(record.get("Clothing Allowance").replace(",", "").trim()),
+                    Double.parseDouble(record.get("Gross Semi-monthly Rate").replace(",", "").trim()),
+                    Double.parseDouble(record.get("Hourly Rate").replace(",", "").trim())
+                );
+
                 Employee emp = new Employee(
-                    record.get("Employee #"),
-                    record.get("Last Name"),
-                    record.get("First Name"),
-                    record.get("Birthday"),
-                    record.get("Address"),
-                    record.get("Phone Number"),
-                    record.get("SSS #"),
-                    record.get("Philhealth #"),
-                    record.get("TIN #"),
-                    record.get("Pag-ibig #"),
-                    record.get("Status"),
-                    record.get("Position"),
-                    record.get("Immediate Supervisor"),
-                    record.get("Basic Salary"),
-                    record.get("Rice Subsidy"),
-                    record.get("Phone Allowance"),
-                    record.get("Clothing Allowance"),
-                    record.get("Gross Semi-monthly Rate"),
-                    record.get("Hourly Rate")
+                        record.get("Employee #"),
+                        record.get("First Name"),
+                        record.get("Last Name"),
+                        record.get("Birthday"),
+                        personal,
+                        benefits,
+                        employment,
+                        salary
                 );
 
                 employeeMap.put(emp.getEmployeeId(), emp);
@@ -86,17 +104,85 @@ public class EmployeeRecordParser extends JFrame{
                 row.add(emp.getEmployeeId());
                 row.add(emp.getLastName());
                 row.add(emp.getFirstName());
-                row.add(emp.getSss());
-                row.add(emp.getPhilhealth());
-                row.add(emp.getTin());
-                row.add(emp.getPagIbig());
+                row.add(emp.getBenefits().getSss());
+                row.add(emp.getBenefits().getPhilhealth());
+                row.add(emp.getBenefits().getTin());
+                row.add(emp.getBenefits().getPagIbig());
 
                 data.add(row);
             }
+
         } catch (IOException e) {
-            JOptionPane.showMessageDialog(null, "Error loading CSV: " + e.getMessage(), "Error", JOptionPane.ERROR_MESSAGE);
+            JOptionPane.showMessageDialog(null,
+                    "Error loading CSV: " + e.getMessage(),
+                    "Error",
+                    JOptionPane.ERROR_MESSAGE);
         }
-    }   
+    }
+    
+
+    /*
+    * Loads employee data from an external CSV source.
+    * Parser and Default Builder from Apache Commons CSV API
+    */
+//        public void loadEmployeeData(Vector<String> columnNames, Vector<Vector<String>> data) {
+//        try (BufferedReader br = new BufferedReader(new FileReader(csvPath.toFile()))) {
+//            CSVFormat format = CSVFormat.DEFAULT.builder()
+//                .setHeader()
+//                .setSkipHeaderRecord(true)
+//                .build();
+//
+//            CSVParser csvParser = new CSVParser(br, format);
+//
+//            String[] headersToShow = {
+//                "Employee #", "Last Name", "First Name",
+//                "SSS #", "Philhealth #", "TIN #", "Pag-ibig #"
+//            };
+//
+//            for (String col : headersToShow) {
+//                columnNames.add(col.replace("#", "").trim());
+//            }
+//
+//            for (CSVRecord record : csvParser) {
+//                Employee emp = new Employee(
+//                    record.get("Employee #"),
+//                    record.get("Last Name"),
+//                    record.get("First Name"),
+//                    record.get("Birthday"),
+//                    record.get("Address"),
+//                    record.get("Phone Number"),
+//                    record.get("SSS #"),
+//                    record.get("Philhealth #"),
+//                    record.get("TIN #"),
+//                    record.get("Pag-ibig #"),
+//                    record.get("Status"),
+//                    record.get("Position"),
+//                    record.get("Immediate Supervisor"),
+//                    record.get("Basic Salary"),
+//                    record.get("Rice Subsidy"),
+//                    record.get("Phone Allowance"),
+//                    record.get("Clothing Allowance"),
+//                    record.get("Gross Semi-monthly Rate"),
+//                    record.get("Hourly Rate")
+//                );
+//
+//                employeeMap.put(emp.getEmployeeId(), emp);
+//
+//                Vector<String> row = new Vector<>();
+//                row.add(emp.getEmployeeId());
+//                row.add(emp.getLastName());
+//                row.add(emp.getFirstName());
+//                row.add(emp.getSss());
+//                row.add(emp.getPhilhealth());
+//                row.add(emp.getTin());
+//                row.add(emp.getPagIbig());
+//
+//                data.add(row);
+//            }
+//        } catch (IOException e) {
+//            JOptionPane.showMessageDialog(null, "Error loading CSV: " + e.getMessage(), "Error", JOptionPane.ERROR_MESSAGE);
+//        }
+//    }   
   
     
     
@@ -128,8 +214,10 @@ public class EmployeeRecordParser extends JFrame{
         });
     }
         
-        public void loadMapOnly() {
+    public void loadMapOnly() {
+
         try (BufferedReader br = new BufferedReader(new FileReader(csvPath.toFile()))) {
+
             CSVFormat format = CSVFormat.DEFAULT.builder()
                     .setHeader()
                     .setSkipHeaderRecord(true)
@@ -138,36 +226,99 @@ public class EmployeeRecordParser extends JFrame{
             CSVParser csvParser = new CSVParser(br, format);
 
             for (CSVRecord record : csvParser) {
+
+                PersonalInfo personal = new PersonalInfo(
+                        record.get("Address").trim(),
+                        record.get("Phone Number").trim()
+                );
+
+                GovernmentBenefits benefits = new GovernmentBenefits(
+                        record.get("SSS #").trim(),
+                        record.get("Philhealth #").trim(),
+                        record.get("TIN #").trim(),
+                        record.get("Pag-ibig #").trim()
+                );
+
+                EmploymentDetails employment = new EmploymentDetails(
+                        record.get("Status").trim(),
+                        record.get("Position").trim(),
+                        record.get("Immediate Supervisor").trim()
+                );
+
+                SalaryDetails salary = new SalaryDetails(
+                    Double.parseDouble(record.get("Basic Salary").replace(",", "").trim()),
+                    Double.parseDouble(record.get("Rice Subsidy").replace(",", "").trim()),
+                    Double.parseDouble(record.get("Phone Allowance").replace(",", "").trim()),
+                    Double.parseDouble(record.get("Clothing Allowance").replace(",", "").trim()),
+                    Double.parseDouble(record.get("Gross Semi-monthly Rate").replace(",", "").trim()),
+                    Double.parseDouble(record.get("Hourly Rate").replace(",", "").trim())
+                );
+
                 Employee emp = new Employee(
                         record.get("Employee #").trim(),
-                        record.get("Last Name").trim(),
                         record.get("First Name").trim(),
-                        record.get("Birthday"),
-                        record.get("Address"),
-                        record.get("Phone Number"),
-                        record.get("SSS #"),
-                        record.get("Philhealth #"),
-                        record.get("TIN #"),
-                        record.get("Pag-ibig #"),
-                        record.get("Status"),
-                        record.get("Position"),
-                        record.get("Immediate Supervisor"),
-                        record.get("Basic Salary"),
-                        record.get("Rice Subsidy"),
-                        record.get("Phone Allowance"),
-                        record.get("Clothing Allowance"),
-                        record.get("Gross Semi-monthly Rate"),
-                        record.get("Hourly Rate")
+                        record.get("Last Name").trim(),
+                        record.get("Birthday").trim(),
+                        personal,
+                        benefits,
+                        employment,
+                        salary
                 );
 
                 employeeMap.put(emp.getEmployeeId(), emp);
             }
 
         } catch (IOException e) {
-            JOptionPane.showMessageDialog(null, "Error loading employee data: " + e.getMessage(), "Error", JOptionPane.ERROR_MESSAGE);
+            JOptionPane.showMessageDialog(
+                    null,
+                    "Error loading employee data: " + e.getMessage(),
+                    "Error",
+                    JOptionPane.ERROR_MESSAGE
+            );
         }
     }
-        
 }
+        
+//        public void loadMapOnly() {
+//        try (BufferedReader br = new BufferedReader(new FileReader(csvPath.toFile()))) {
+//            CSVFormat format = CSVFormat.DEFAULT.builder()
+//                    .setHeader()
+//                    .setSkipHeaderRecord(true)
+//                    .build();
+//
+//            CSVParser csvParser = new CSVParser(br, format);
+//
+//            for (CSVRecord record : csvParser) {
+//                Employee emp = new Employee(
+//                        record.get("Employee #").trim(),
+//                        record.get("Last Name").trim(),
+//                        record.get("First Name").trim(),
+//                        record.get("Birthday"),
+//                        record.get("Address"),
+//                        record.get("Phone Number"),
+//                        record.get("SSS #"),
+//                        record.get("Philhealth #"),
+//                        record.get("TIN #"),
+//                        record.get("Pag-ibig #"),
+//                        record.get("Status"),
+//                        record.get("Position"),
+//                        record.get("Immediate Supervisor"),
+//                        record.get("Basic Salary"),
+//                        record.get("Rice Subsidy"),
+//                        record.get("Phone Allowance"),
+//                        record.get("Clothing Allowance"),
+//                        record.get("Gross Semi-monthly Rate"),
+//                        record.get("Hourly Rate")
+//                );
+//
+//                employeeMap.put(emp.getEmployeeId(), emp);
+//            }
+//
+//        } catch (IOException e) {
+//            JOptionPane.showMessageDialog(null, "Error loading employee data: " + e.getMessage(), "Error", JOptionPane.ERROR_MESSAGE);
+//        }
+//    }
+//        
+//}
 
 

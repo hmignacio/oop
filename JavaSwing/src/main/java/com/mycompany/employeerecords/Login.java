@@ -6,17 +6,17 @@ import java.awt.event.*;
 import java.io.BufferedReader;
 import java.io.FileReader;
 import java.io.IOException;
-import java.nio.file.Path;
-import java.nio.file.Paths;
+
 import java.util.HashMap;
 import java.util.Map;
+import com.mycompany.employeerecords.model.Employee;
 
 public class Login extends JFrame implements ActionListener {
     private JTextField userField;
     private JPasswordField passField;
     private JButton loginButton;
     
-    
+    private static final EmployeeRecordParser employeeData = new EmployeeRecordParser();
     private Map<String, String> userCredentials = new HashMap<>();
     
 
@@ -102,14 +102,20 @@ public class Login extends JFrame implements ActionListener {
 
     @Override
     public void actionPerformed(ActionEvent e) {
+
         String employeeNumber = userField.getText().trim();
         String password = new String(passField.getPassword()).trim();
 
-        if (userCredentials.containsKey(employeeNumber) && userCredentials.get(employeeNumber).equals(password)) {
-            dispose();
+        if (userCredentials.containsKey(employeeNumber) &&
+            userCredentials.get(employeeNumber).equals(password)) {
+
             SwingUtilities.invokeLater(() -> new EmployeeRecords(employeeNumber).setVisible(true));
+
         } else {
-            JOptionPane.showMessageDialog(this, "Invalid employee number or password.", "Login Failed", JOptionPane.ERROR_MESSAGE);
+            JOptionPane.showMessageDialog(this,
+                    "Invalid employee number or password.",
+                    "Login Failed",
+                    JOptionPane.ERROR_MESSAGE);
         }
     }
     

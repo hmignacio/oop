@@ -17,13 +17,17 @@ import java.io.File;
 import java.io.FileReader;
 import java.io.FileWriter;
 import java.io.IOException;
+import com.mycompany.employeerecords.model.Employee;
+import com.mycompany.employeerecords.service.AccessControl;
 
 public class ViewEmployee extends JFrame {
 
     private Employee employee;
     private EmployeeRecords parent;
+    private Employee loggedInEmployee;
+    JButton btnEdit,btnDelete, btnClose;
 
-    public ViewEmployee(EmployeeRecords parent, Employee employee) {
+    public ViewEmployee(EmployeeRecords parent, Employee loggedinEmployee, Employee employee) {
         this.parent = parent;
         this.employee = employee;
 
@@ -32,8 +36,8 @@ public class ViewEmployee extends JFrame {
         setLocationRelativeTo(null);
         setResizable(false); 
         setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE); // Just close this frame
-       
         makeJFrame();
+        applyAccessControl(loggedinEmployee);
     }
 
     private void makeJFrame() {
@@ -76,21 +80,25 @@ public class ViewEmployee extends JFrame {
             {"Last Name:", employee.getLastName()},
             {"First Name:", employee.getFirstName()},
             {"Birth Date:", employee.getBirthDate()},
-            {"Address:", employee.getAddress()},
-            {"Phone:", employee.getPhone()},
-            {"SSS Number:", employee.getSss()},
-            {"PhilHealth Number:", employee.getPhilhealth()},
-            {"TIN:", employee.getTin()},
-            {"Pag-IBIG Number:", employee.getPagIbig()},
-            {"Status:", employee.getStatus()},
-            {"Position:", employee.getPosition()},
-            {"Supervisor:", employee.getSupervisor()},
-            {"Salary:", employee.getSalary()},
-            {"Rice Subsidy:", employee.getRiceSubsidy()},
-            {"Phone Allowance:", employee.getPhoneAllowance()},
-            {"Clothing Allowance:", employee.getClothingAllowance()},
-            {"Gross Semi-monthly Rate:", employee.getGrossRate()},
-            {"Hourly Rate:", employee.getHourlyRate()}
+
+            {"Address:", employee.getPersonalInfo().getAddress()},
+            {"Phone:", employee.getPersonalInfo().getPhone()},
+
+            {"SSS Number:", employee.getBenefits().getSss()},
+            {"PhilHealth Number:", employee.getBenefits().getPhilhealth()},
+            {"TIN:", employee.getBenefits().getTin()},
+            {"Pag-IBIG Number:", employee.getBenefits().getPagIbig()},
+
+            {"Status:", employee.getEmployment().getStatus()},
+            {"Position:", employee.getEmployment().getPosition()},
+            {"Supervisor:", employee.getEmployment().getSupervisor()},
+
+            {"Salary:", String.valueOf(employee.getSalary().getSalary())},
+            {"Rice Subsidy:", String.valueOf(employee.getSalary().getRiceSubsidy())},
+            {"Phone Allowance:", String.valueOf(employee.getSalary().getPhoneAllowance())},
+            {"Clothing Allowance:", String.valueOf(employee.getSalary().getClothingAllowance())},
+            {"Gross Semi-monthly Rate:", String.valueOf(employee.getSalary().getGrossRate())},
+            {"Hourly Rate:", String.valueOf(employee.getSalary().getHourlyRate())}
         };
 
         Font labelFont = new Font("SansSerif", Font.BOLD, 14);
@@ -154,9 +162,9 @@ public class ViewEmployee extends JFrame {
 
         // Bottom button panel with Edit, Delete, Close buttons
         JPanel buttonPanel = new JPanel(new FlowLayout(FlowLayout.RIGHT, 15, 10));
-        JButton btnEdit = new JButton("Edit");
-        JButton btnDelete = new JButton("Delete");
-        JButton btnClose = new JButton("Close");
+         btnEdit = new JButton("Edit");
+         btnDelete = new JButton("Delete");
+         btnClose = new JButton("Close");
 
         buttonPanel.add(btnEdit);
         buttonPanel.add(btnDelete);
@@ -228,6 +236,11 @@ public class ViewEmployee extends JFrame {
 
         return false;
     }
+        
+    private void applyAccessControl(Employee emp) {
+            btnEdit.setVisible(AccessControl.canEditEmployee(emp));
+            btnDelete.setVisible(AccessControl.canDeleteEmployee(emp));
+        }
 
 }
 
