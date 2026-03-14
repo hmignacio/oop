@@ -193,6 +193,7 @@ public class ViewEmployee extends JFrame {
                 if (deleted) {
                     JOptionPane.showMessageDialog(this, "Employee deleted successfully.");
                     if (parent != null) {
+                        parent.getEmployeeTable().clearSelection();
                         parent.reloadEmployeeTable(); // refresh JTable
                     }
                     dispose(); // close the view

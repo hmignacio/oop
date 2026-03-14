@@ -1,9 +1,10 @@
 C:\Users\Hanna\Documents\oop\oop\JavaSwing\src\main\java\com\mycompany\employeerecords\AddEmployee.java
 C:\Users\Hanna\Documents\oop\oop\JavaSwing\src\main\java\com\mycompany\employeerecords\Attendance.java
 C:\Users\Hanna\Documents\oop\oop\JavaSwing\src\main\java\com\mycompany\employeerecords\EditEmployee.java
-C:\Users\Hanna\Documents\oop\oop\JavaSwing\src\main\java\com\mycompany\employeerecords\Employee.java
 C:\Users\Hanna\Documents\oop\oop\JavaSwing\src\main\java\com\mycompany\employeerecords\EmployeeRecordParser.java
 C:\Users\Hanna\Documents\oop\oop\JavaSwing\src\main\java\com\mycompany\employeerecords\EmployeeRecords.java
+C:\Users\Hanna\Documents\oop\oop\JavaSwing\src\main\java\com\mycompany\employeerecords\LeaveRequests.java
+C:\Users\Hanna\Documents\oop\oop\JavaSwing\src\main\java\com\mycompany\employeerecords\LogAttendance.java
 C:\Users\Hanna\Documents\oop\oop\JavaSwing\src\main\java\com\mycompany\employeerecords\Login.java
 C:\Users\Hanna\Documents\oop\oop\JavaSwing\src\main\java\com\mycompany\employeerecords\model\Employee.java
 C:\Users\Hanna\Documents\oop\oop\JavaSwing\src\main\java\com\mycompany\employeerecords\model\EmploymentDetails.java
@@ -13,6 +14,8 @@ C:\Users\Hanna\Documents\oop\oop\JavaSwing\src\main\java\com\mycompany\employeer
 C:\Users\Hanna\Documents\oop\oop\JavaSwing\src\main\java\com\mycompany\employeerecords\Salary.java
 C:\Users\Hanna\Documents\oop\oop\JavaSwing\src\main\java\com\mycompany\employeerecords\SalaryComputation.java
 C:\Users\Hanna\Documents\oop\oop\JavaSwing\src\main\java\com\mycompany\employeerecords\service\AccessControl.java
+C:\Users\Hanna\Documents\oop\oop\JavaSwing\src\main\java\com\mycompany\employeerecords\service\AttendanceUtils.java
+C:\Users\Hanna\Documents\oop\oop\JavaSwing\src\main\java\com\mycompany\employeerecords\service\EmployeeService.java
 C:\Users\Hanna\Documents\oop\oop\JavaSwing\src\main\java\com\mycompany\employeerecords\service\PasswordRenderer.java
 C:\Users\Hanna\Documents\oop\oop\JavaSwing\src\main\java\com\mycompany\employeerecords\UserManagement.java
 C:\Users\Hanna\Documents\oop\oop\JavaSwing\src\main\java\com\mycompany\employeerecords\ViewEmployee.java

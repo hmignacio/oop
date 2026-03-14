@@ -13,6 +13,9 @@ import java.awt.*;
 import java.awt.Color;
 import java.awt.Font;
 import java.util.Vector;
+import javax.swing.event.DocumentEvent;
+import javax.swing.event.DocumentListener;
+import javax.swing.table.TableRowSorter;
 
 
 public class EmployeeRecords extends JFrame {
@@ -23,7 +26,8 @@ public class EmployeeRecords extends JFrame {
     private static final AccessControl service = new AccessControl();
     private JTable employeeTable;
     private JPanel mainPanel;
-    private JButton btnView, btnAdd, btnUsers, btnSalary;
+    private JTextField txtSearch;
+    private JButton btnView, btnAdd, btnUsers, btnSalary, btnClearSearch, btnAttendance, btnLeave;
     private Employee loggedInEmployee;
     
     
@@ -60,68 +64,86 @@ public class EmployeeRecords extends JFrame {
 
         JScrollPane scrollPane = new JScrollPane(employeeTable);
          
-        // Create the header label
+        // Header Panel
+        JPanel headerPanel = new JPanel();
+        headerPanel.setLayout(new BoxLayout(headerPanel, BoxLayout.Y_AXIS));
+        headerPanel.setAlignmentX(Component.LEFT_ALIGNMENT);
+
         JLabel headerLabel = new JLabel("MOTOR PH EMPLOYEE DATA");
         headerLabel.setFont(new Font("SansSerif", Font.BOLD, 24));
-        headerLabel.setBorder(BorderFactory.createEmptyBorder(10, 10, 10, 10));
-        headerLabel.setAlignmentX(Component.LEFT_ALIGNMENT); 
-        headerLabel.setHorizontalAlignment(SwingConstants.LEFT);
-        
-        // Welcome label
+        headerLabel.setAlignmentX(Component.LEFT_ALIGNMENT);
+
         String welcomeText = "Welcome!";
         if (loggedInEmployee != null) {
             welcomeText = "Welcome, " + loggedInEmployee.getFirstName() + "!";
         }
+
         JLabel welcomeLabel = new JLabel(welcomeText);
         welcomeLabel.setFont(new Font("SansSerif", Font.PLAIN, 16));
-        welcomeLabel.setForeground(Color.BLACK); 
-        welcomeLabel.setBorder(BorderFactory.createEmptyBorder(0, 10, 10, 10));
         welcomeLabel.setAlignmentX(Component.LEFT_ALIGNMENT);
 
-        // Create buttons
-        btnView = new JButton("Display Employee");
-        btnAdd = new JButton("New Employee");
+        headerPanel.add(headerLabel);
+        headerPanel.add(Box.createVerticalStrut(5));
+        headerPanel.add(welcomeLabel);
+
+
+        // Button Panel
+        JPanel buttonPanel = new JPanel(new FlowLayout(FlowLayout.LEFT, 15, 10));
+        buttonPanel.setAlignmentX(Component.LEFT_ALIGNMENT);
+        
+        btnView = new JButton("View Employee");
+        btnAdd = new JButton("Add New Employee");
         btnSalary = new JButton("View Salary");
         btnUsers = new JButton("Manage Users");
-        
+        btnAttendance = new JButton("Log Attendance");
+        btnLeave = new JButton("File Leave Request");
 
-        JPanel buttonPanel = new JPanel(new FlowLayout(FlowLayout.LEFT, 15, 10));
-        buttonPanel.setAlignmentX(Component.LEFT_ALIGNMENT);  // align left in BoxLayout
         buttonPanel.add(btnView);
         buttonPanel.add(btnAdd);
         buttonPanel.add(btnSalary);
         buttonPanel.add(btnUsers);
-        
-        // Separator line
-        JSeparator separator = new JSeparator();
-        separator.setForeground(Color.BLACK);
-        separator.setAlignmentX(Component.LEFT_ALIGNMENT); // align left in BoxLayout
-        separator.setMaximumSize(new Dimension(Integer.MAX_VALUE, 2)); // make it full width & 2px height
-        
-        JSeparator separatorTwo = new JSeparator();
-        separatorTwo.setForeground(Color.BLACK);
-        separatorTwo.setAlignmentX(Component.LEFT_ALIGNMENT); // align left in BoxLayout
-        separatorTwo.setMaximumSize(new Dimension(Integer.MAX_VALUE, 2)); // make it full width & 2px height
+        buttonPanel.add(btnAttendance);
+        buttonPanel.add(btnLeave);
 
-        // Main top panel with vertical BoxLayout to stack label, separator, buttons vertically
+
+        // Search Panel
+        JPanel searchPanel = new JPanel(new FlowLayout(FlowLayout.RIGHT));
+        searchPanel.setAlignmentX(Component.LEFT_ALIGNMENT);
+
+        txtSearch = new JTextField(20);
+        btnClearSearch = new JButton("Clear");
+
+        searchPanel.add(new JLabel("Search: "));
+        searchPanel.add(txtSearch);
+        searchPanel.add(btnClearSearch);
+
+
+        // Separators
+        JSeparator separator1 = new JSeparator();
+        separator1.setMaximumSize(new Dimension(Integer.MAX_VALUE, 2));
+
+        JSeparator separator2 = new JSeparator();
+        separator2.setMaximumSize(new Dimension(Integer.MAX_VALUE, 2));
+
+
+        // Top Panel
         JPanel topPanel = new JPanel();
         topPanel.setLayout(new BoxLayout(topPanel, BoxLayout.Y_AXIS));
-        topPanel.add(headerLabel);
-        topPanel.add(welcomeLabel);
-        topPanel.add(separator);
-        topPanel.add(buttonPanel);
-        topPanel.add(separatorTwo);
+        topPanel.setBorder(BorderFactory.createEmptyBorder(10,10,10,10));
 
-        // Add the topPanel to your frame
-        add(topPanel, BorderLayout.NORTH);
-       
-        // Main panel layout: topPanel north, table center
-        JPanel mainPanel = new JPanel(new BorderLayout(10, 10));
-        mainPanel.setBorder(BorderFactory.createEmptyBorder(10, 10, 10, 10));
+        topPanel.add(headerPanel);
+        topPanel.add(Box.createVerticalStrut(10));
+        topPanel.add(separator1);
+        topPanel.add(buttonPanel);
+        topPanel.add(separator2);
+        topPanel.add(searchPanel);
+
+        mainPanel = new JPanel(new BorderLayout(10,10));
+        mainPanel.setBorder(BorderFactory.createEmptyBorder(10,10,10,10));
+
         mainPanel.add(topPanel, BorderLayout.NORTH);
         mainPanel.add(scrollPane, BorderLayout.CENTER);
 
-        // Add main panel to frame
         add(mainPanel);
         
         
@@ -173,29 +195,85 @@ public class EmployeeRecords extends JFrame {
             btnUsers.addActionListener(e -> {
                 new UserManagement().setVisible(true);
             });
+            
+            btnAttendance.addActionListener(e -> {
+                if (loggedInEmployee == null) {
+                    JOptionPane.showMessageDialog(this,
+                        "No employee is logged in.",
+                        "Error",
+                        JOptionPane.ERROR_MESSAGE);
+                    return;
+                }
+
+                LogAttendance frame = new LogAttendance(loggedInEmployee);
+                frame.setVisible(true);
+            });
+            
+            btnLeave.addActionListener(e -> {
+                LeaveRequests leaveFrame = new LeaveRequests(loggedInEmployee);
+                leaveFrame.setVisible(true);
+            });
+            
+            DefaultTableModel tableModel = (DefaultTableModel) employeeTable.getModel();
+            TableRowSorter<DefaultTableModel> sorter = new TableRowSorter<>(tableModel);
+            employeeTable.setRowSorter(sorter);
+
+            txtSearch.getDocument().addDocumentListener(new DocumentListener() {
+
+                private void search() {
+                    String text = txtSearch.getText();
+
+                    if (text.trim().isEmpty()) {
+                        sorter.setRowFilter(null);
+                    } else {
+                        sorter.setRowFilter(RowFilter.regexFilter("(?i)" + text));
+                    }
+                }
+
+                public void insertUpdate(DocumentEvent e) { search(); }
+                public void removeUpdate(DocumentEvent e) { search(); }
+                public void changedUpdate(DocumentEvent e) { search(); }
+            });
+            
+            btnClearSearch.addActionListener(e -> {
+                txtSearch.setText("");
+            }); 
     }
 
 
         public void reloadEmployeeTable() {
-        Vector<String> columnNames = new Vector<>();
-        Vector<Vector<String>> data = new Vector<>();
-        employeeData.loadEmployeeData(columnNames, data);
 
-        DefaultTableModel model = new DefaultTableModel(data, columnNames) {
-            @Override
-            public boolean isCellEditable(int row, int column) {
-                return false;
-            }
-        };
-        employeeTable.setModel(model);
-        employeeData.styleEmployeeTable(employeeTable);  // re-style
-    }
+            SwingUtilities.invokeLater(() -> {
+
+                Vector<String> columnNames = new Vector<>();
+                Vector<Vector<String>> data = new Vector<>();
+
+                employeeData.loadEmployeeData(columnNames, data);
+
+                DefaultTableModel model = new DefaultTableModel(data, columnNames) {
+                    @Override
+                    public boolean isCellEditable(int row, int column) {
+                        return false;
+                    }
+                };
+
+                employeeTable.setModel(model);
+                employeeTable.clearSelection();
+                employeeTable.repaint();
+
+                employeeData.styleEmployeeTable(employeeTable);
+            });
+        }
         
         private void applyAccessControl(Employee emp) {
             btnAdd.setVisible(AccessControl.canAddEmployee(emp));
             btnView.setVisible(AccessControl.canViewEmployees(emp));
             btnSalary.setVisible(AccessControl.canAccessSalary(emp));
             btnUsers.setVisible(AccessControl.canManageUsers(emp));
+        }
+        
+        public JTable getEmployeeTable() {
+            return employeeTable;
         }
 }
 

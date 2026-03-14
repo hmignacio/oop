@@ -8,12 +8,18 @@ package com.mycompany.employeerecords;
  *
  * @author Admin
  */
+import com.mycompany.employeerecords.model.EmploymentDetails;
+import com.mycompany.employeerecords.model.GovernmentBenefits;
+import com.mycompany.employeerecords.model.PersonalInfo;
+import com.mycompany.employeerecords.model.SalaryDetails;
+import com.mycompany.employeerecords.model.Employee;
 import javax.swing.*;
 import java.awt.*;
 import java.io.BufferedWriter;
 import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
+import com.mycompany.employeerecords.service.EmployeeService;
 
 public class AddEmployee extends JFrame {
     
@@ -129,68 +135,55 @@ public class AddEmployee extends JFrame {
         // Button actions
         btnCancel.addActionListener(e -> dispose());
 
-        btnSave.addActionListener(e -> {
-            // Collect all field values
-            String[] values = {
-                txtEmployeeId.getText().trim(),
-                txtLastName.getText().trim(),
-                txtFirstName.getText().trim(),
-                txtBirthDate.getText().trim(),
-                txtAddress.getText().trim(),
-                txtPhone.getText().trim(),
-                txtSSS.getText().trim(),
-                txtPhilhealth.getText().trim(),
-                txtTIN.getText().trim(),
-                txtPagIbig.getText().trim(),
-                txtStatus.getText().trim(),
-                txtPosition.getText().trim(),
-                txtSupervisor.getText().trim(),
-                txtSalary.getText().trim(),
-                txtRiceSubsidy.getText().trim(),
-                txtPhoneAllowance.getText().trim(),
-                txtClothingAllowance.getText().trim(),
-                txtGrossRate.getText().trim(),
-                txtHourlyRate.getText().trim()
-            };
-
-            // Validate required fields 
-            for (String val : values) {
-                if (val.isEmpty()) {
-                    JOptionPane.showMessageDialog(this, "All fields must be filled out.", "Validation Error", JOptionPane.WARNING_MESSAGE);
-                    return;
-                }
-            }
-
-
+            btnSave.addActionListener(e -> {
             try {
-                File file = new File("src/docs/MotorPH-Employee-Data.csv");
-                boolean fileExists = file.exists();
+                // Strings
+                String firstName = txtFirstName.getText().trim();
+                String lastName  = txtLastName.getText().trim();
+                String employeeId = txtEmployeeId.getText().trim();
+                String birthDate = txtBirthDate.getText().trim();
+                String address = txtAddress.getText().trim();
+                String phone = txtPhone.getText().trim();
+                String sss = txtSSS.getText().trim();
+                String philhealth = txtPhilhealth.getText().trim();
+                String tin = txtTIN.getText().trim();
+                String pagIbig = txtPagIbig.getText().trim();
+                String status = txtStatus.getText().trim();
+                String position = txtPosition.getText().trim();
+                String supervisor = txtSupervisor.getText().trim();
 
-                FileWriter fw = new FileWriter(file, true); // append = true
-                BufferedWriter writer = new BufferedWriter(fw);
+                // Doubles (numeric fields only)
+                double salaryVal = Double.parseDouble(txtSalary.getText().trim());
+                double riceSubsidyVal = Double.parseDouble(txtRiceSubsidy.getText().trim());
+                double phoneAllowanceVal = Double.parseDouble(txtPhoneAllowance.getText().trim());
+                double clothingAllowanceVal = Double.parseDouble(txtClothingAllowance.getText().trim());
+                double grossRateVal = Double.parseDouble(txtGrossRate.getText().trim());
+                double hourlyRateVal = Double.parseDouble(txtHourlyRate.getText().trim());
 
-              
-                if (!fileExists) {
-                    writer.newLine();
-                }
+                // Build nested objects
+                PersonalInfo personalInfo = new PersonalInfo(address, phone);
+                GovernmentBenefits benefits = new GovernmentBenefits(sss, philhealth, tin, pagIbig);
+                EmploymentDetails employment = new EmploymentDetails(status, position, supervisor);
+                SalaryDetails salary = new SalaryDetails(
+                        salaryVal, riceSubsidyVal, phoneAllowanceVal,
+                        clothingAllowanceVal, grossRateVal, hourlyRateVal
+                );
 
-                // Build the row and write
-                String csvRow = String.join(",", values);
-                writer.write(csvRow);
-                writer.newLine();
-                writer.close();
+                // Build Employee
+                Employee emp = new Employee(
+                        employeeId, firstName, lastName, birthDate,
+                        personalInfo, benefits, employment, salary
+                );
 
-                // Success alert message
-                JOptionPane.showMessageDialog(this, "Employee data saved successfully.");
+                // Save via service
+                EmployeeService.saveEmployee(emp);
 
-                // Refresh main employee table
-                if (parent != null) {
-                    parent.reloadEmployeeTable();
-                }
-
-                // Close the window
+                JOptionPane.showMessageDialog(this, "Employee saved successfully!");
+                if (parent != null) parent.reloadEmployeeTable();
                 dispose();
 
+            } catch (NumberFormatException ex) {
+                JOptionPane.showMessageDialog(this, "Please enter valid numeric values for salary and allowance fields.", "Input Error", JOptionPane.WARNING_MESSAGE);
             } catch (IOException ex) {
                 JOptionPane.showMessageDialog(this, "Failed to save employee data: " + ex.getMessage(), "Error", JOptionPane.ERROR_MESSAGE);
                 ex.printStackTrace();

@@ -80,7 +80,7 @@ public class Salary extends JFrame {
         // Column 2 - Fields
         gbc.gridx = 1;
         gbc.gridy = 0;
-        yearComboBox = new JComboBox<>(new String[]{"2024", "2025"});
+        yearComboBox = new JComboBox<>(new String[]{"2024", "2025", "2026"});
         centerPanel.add(yearComboBox, gbc);
         gbc.gridy++;
         monthComboBox = new JComboBox<>(new String[]{
